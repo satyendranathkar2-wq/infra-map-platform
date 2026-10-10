@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Infrastructure Map Explorer</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <aside id="sidebar">
+    <header class="brand">
+      <h1>Infrastructure Map Explorer</h1>
+      <p>Power · Renewables · Roads · Population · Water — open data</p>
+    </header>
+
+    <nav class="tabs" role="tablist">
+      <button class="tab active" data-tab="layers">Layers</button>
+      <button class="tab" data-tab="query">Query</button>
+      <button class="tab" data-tab="mca">Suitability</button>
+      <button class="tab" data-tab="site">Site</button>
+    </nav>
+
+    <!-- LAYERS -->
+    <section class="panel active" id="tab-layers">
+      <div class="search">
+        <input id="search-input" type="search" placeholder="Search a place (e.g. Rajasthan, Pune)…" autocomplete="off">
+        <ul id="search-results"></ul>
+      </div>
+      <label class="field">Basemap
+        <select id="basemap-select"></select>
+      </label>
+      <div id="layer-groups"></div>
+      <p class="hint">Live OpenStreetMap layers load for the current view once you zoom in past their minimum zoom level (shown as “z≥”).</p>
+    </section>
+
+    <!-- QUERY -->
+    <section class="panel" id="tab-query">
+      <h2>Attribute filters</h2>
+      <label class="field">Name contains
+        <input id="f-name" type="text" placeholder="any">
+      </label>
+      <div class="field">Energy source (plants)
+        <div id="f-sources" class="chips"></div>
+      </div>
+      <div class="row">
+        <label class="field">Min capacity (MW)
+          <input id="f-mw" type="number" min="0" step="1" placeholder="0">
+        </label>
+        <label class="field">Min voltage (kV)
+          <input id="f-kv" type="number" min="0" step="1" placeholder="0">
+        </label>
+      </div>
+      <label class="field">Min settlement population
+        <input id="f-pop" type="number" min="0" step="1000" placeholder="0">
+      </label>
+      <button id="f-reset" class="btn ghost">Reset filters</button>
+
+      <h2>Spatial query</h2>
+      <p class="hint">Draw a rectangle, polygon or circle with the tools on the map, or use the current view. The query covers every visible layer that has data loaded.</p>
+      <div class="row">
+        <button id="q-view" class="btn">Query current view</button>
+        <button id="q-clear" class="btn ghost">Clear</button>
+      </div>
+      <div id="q-results"></div>
+    </section>
+
+    <!-- MULTI-CRITERIA ANALYSIS -->
+    <section class="panel" id="tab-mca">
+      <h2>Multi-criteria suitability analysis</h2>
+      <p class="hint">Scores every grid cell in the current view from 0 to 100 using a weighted overlay of distance-based criteria. Zoom in to district scale (level 9 or closer) first. The required data loads automatically.</p>
+      <label class="field">Purpose
+        <select id="mca-preset"></select>
+      </label>
+      <p id="mca-why" class="why"></p>
+      <div id="mca-criteria"></div>
+      <p id="mca-unused-note" class="hint"></p>
+      <div class="row">
+        <label class="field">Exclude within (km) of settlements
+          <input id="mca-excl" type="number" min="0" step="0.5" value="1">
+        </label>
+        <label class="field">Grid resolution
+          <select id="mca-res">
+            <option value="40">Coarse (40 cols)</option>
+            <option value="70" selected>Medium (70 cols)</option>
+            <option value="110">Fine (110 cols)</option>
+          </select>
+        </label>
+      </div>
+      <label class="field">Layer opacity
+        <input id="mca-opacity" type="range" min="0.1" max="1" step="0.05" value="0.6">
+      </label>
+      <div class="row">
+        <button id="mca-run" class="btn">Run analysis</button>
+        <button id="mca-clear" class="btn ghost">Clear</button>
+      </div>
+      <div id="mca-results"></div>
+    </section>
+
+    <!-- SITE -->
+    <section class="panel" id="tab-site">
+      <h2>Site proximity analysis</h2>
+      <p class="hint">Pick a location to find the nearest substation, transmission line, power plants, major road, railway, water source and town, with straight-line distances. Data comes live from OpenStreetMap.</p>
+      <button id="site-pick" class="btn">Pick site on map</button>
+      <div id="site-results"></div>
+    </section>
+
+    <footer class="credits">
+      Data: © OpenStreetMap contributors (ODbL) · WRI Global Power Plant Database (CC BY 4.0) ·
+      CIESIN GPWv4 via NASA GIBS · Geocoding: Nominatim
+    </footer>
+  </aside>
+
+  <main id="map"></main>
+  <div id="status" hidden></div>
+  <div id="legend" class="legend"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6.5.0/turf.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
